@@ -1,0 +1,32 @@
+name: Проверка установщика
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Проверка bootstrap
+        run: sh -n installer.sh
+
+      - name: Проверка основного установщика
+        run: bash -n install-smartdns.sh
+
+      - name: Проверка версии и обязательных endpoint'ов
+        run: |
+          grep -qF 'VERSION="1.3.0"' install-smartdns.sh
+          grep -qF 'robinfrontend-pa.googleapis.com' install-smartdns.sh
+          grep -qF 'generativelanguage.googleapis.com' install-smartdns.sh
+
+      - name: Установить ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: ShellCheck
+        run: |
+          shellcheck --severity=error installer.sh
+          shellcheck --severity=error -x install-smartdns.sh
