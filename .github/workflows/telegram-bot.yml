@@ -1,0 +1,19 @@
+name: Telegram bot checks
+on:
+  pull_request:
+    paths: ['telegram-bot/**', 'tests/test_telegram_bot.py', 'install-telegram-bot.sh', '.github/workflows/telegram-bot.yml']
+  push:
+    paths: ['telegram-bot/**', 'tests/test_telegram_bot.py', 'install-telegram-bot.sh', '.github/workflows/telegram-bot.yml']
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check installer
+        run: |
+          bash -n install-telegram-bot.sh
+          shellcheck install-telegram-bot.sh
+      - name: Test domain transactions and Telegram access
+        run: python3 -m unittest discover -s tests -p 'test_telegram_bot.py' -v
